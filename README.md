@@ -1,0 +1,2 @@
+# ArticleMaterialExtractor
+从各自媒体平台搜集创作所需的素材
