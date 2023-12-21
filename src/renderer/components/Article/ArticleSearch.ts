@@ -29,6 +29,7 @@ export let tableColumns = [
 	{
 		title: '评论数',
 		key: 'commentNum',
+		sorter: (row1: ArticleData, row2: ArticleData) => Number(row1.commentNum) - Number(row2.commentNum),
 	},
 	{
 		title: '发布日期',
