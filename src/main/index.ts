@@ -96,9 +96,6 @@ if (!gotTheLock) {
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
 
-// ipcMain.on('readDir', readDir);
-// ipcMain.handle('getElectronVersion', getElectronVersion);
-// ipcMain.handle('getArticleSearchList', getArticleSearchList);
 for (let key in ipcHandlers) {
 	ipcMain.handle(key, ipcHandlers[key]);
 }

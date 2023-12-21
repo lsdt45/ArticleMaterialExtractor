@@ -44,6 +44,8 @@ async function getArticleList(event: Electron.IpcMainInvokeEvent, page: Page, se
  */
 async function getArticleBaseInfo(obj: any, element: Element) {
 	const urlPrefix = 'https://so.toutiao.com';
+	// 可能的时间关键词
+	const timeKeywords = ['小时前', '分钟前', '秒前', '天前', '月前', '年前', '昨天', '前天'];
 	// 先获取链接和标题
 	let aElement = element.querySelector('.align-items-center a');
 	obj.url = urlPrefix + aElement?.getAttribute('href');
@@ -51,15 +53,29 @@ async function getArticleBaseInfo(obj: any, element: Element) {
 	// 然后获取文章基础信息
 	let infoElement = element.querySelectorAll('.align-items-center.cs-source-content span');
 	if (infoElement.length <= 5) {
-		obj.author = (infoElement[1] as HTMLAnchorElement)?.innerText ?? '未知';
-		(infoElement[2] as HTMLAnchorElement)?.innerText.includes('评论')
-			? (obj.commentNum = (infoElement[2] as HTMLAnchorElement)?.innerText)
-			: (obj.date = (infoElement[2] as HTMLAnchorElement)?.innerText);
-		// 如果经过上面的处理没有获取到评论数，那么就赋值为 0
-		if (!obj.commentNum) {
-			obj.commentNum = '0';
+		for (let index = 0; index < infoElement.length; index++) {
+			// 从第二个开始赋值。第二个必定是作者。
+			if (index === 0) continue;
+			if (index === 1) {
+				obj.author = (infoElement[index] as HTMLAnchorElement)?.innerText ?? '未知';
+				continue;
+			}
+			// 判断是否包含'评论'。
+			if ((infoElement[index] as HTMLAnchorElement)?.innerText.includes('评论')) {
+				obj.commentNum = (infoElement[index] as HTMLAnchorElement)?.innerText;
+			}
+			// 判断是否包含时间关键词。
+			if (timeKeywords.some((keyword) => (infoElement[index] as HTMLAnchorElement)?.innerText.includes(keyword))) {
+				obj.date = (infoElement[index] as HTMLAnchorElement)?.innerText ?? '未知';
+			}
+			// 如果经过上面的处理没有获取到评论数和日期，那么就将它们赋值为 0 和 未知
+			if (!obj.commentNum) {
+				obj.commentNum = '0';
+			}
+			if (!obj.date) {
+				obj.date = '未知';
+			}
 		}
-		obj.date = (infoElement[3] as HTMLAnchorElement)?.innerText ?? '未知';
 	}
 	return obj;
 }
@@ -111,4 +127,37 @@ export function getTimeStamps(daysAgo: number): { currentTimestamp: number; days
 		currentTimestamp,
 		daysAgoTimestamp,
 	};
+}
+
+/**
+ * 解析文章信息元素
+ * @param {any} obj - 用于存储文章信息的对象
+ * @param {NodeListOf<Element>} infoElement - 包含文章信息的元素列表
+ * @returns {any} 包含文章信息的对象
+ */
+function parseArticleInfo(obj: any, infoElement: NodeListOf<Element>) {
+	for (let index = 0; index < infoElement.length; index++) {
+		// 从第二个开始赋值。第二个必定是作者。
+		if (index === 0) continue;
+		if (index === 1) {
+			obj.author = (infoElement[index] as HTMLAnchorElement)?.innerText ?? '未知';
+			continue;
+		}
+		// 判断是否包含'评论'。
+		if ((infoElement[index] as HTMLAnchorElement)?.innerText.includes('评论')) {
+			obj.commentNum = (infoElement[index] as HTMLAnchorElement)?.innerText;
+		}
+		// 判断是否包含时间关键词。
+		if (timeKeywords.some((keyword) => (infoElement[index] as HTMLAnchorElement)?.innerText.includes(keyword))) {
+			obj.date = (infoElement[index] as HTMLAnchorElement)?.innerText ?? '未知';
+		}
+		// 如果经过上面的处理没有获取到评论数和日期，那么就将它们赋值为 0 和 未知
+		if (!obj.commentNum) {
+			obj.commentNum = '0';
+		}
+		if (!obj.date) {
+			obj.date = '未知';
+		}
+	}
+	return obj;
 }

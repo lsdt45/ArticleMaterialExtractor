@@ -45,7 +45,6 @@
 		showModal.value = true;
 		try {
 			await getArticleSearchList();
-			// percentage.value = Number((((i + 1) / Number(searchInfo.value.pageIndex)) * 100).toFixed(0));
 		} catch (err) {
 			console.error(err);
 			message.error('获取数据失败，请重试');
@@ -63,9 +62,8 @@
 	function handleData(data: ArticleData[]): ArticleData[] {
 		// 筛选:
 		// 1.不含author属性的成员
-		// 2.commentNum属性里包含'视频'的成员
 		data = data.filter((item: ArticleData) => {
-			return item.author && !item.commentNum.includes('视频');
+			return item.author;
 		});
 		// 删除掉data.commentNum里的'评论'字样
 		data.forEach((item: ArticleData) => {
