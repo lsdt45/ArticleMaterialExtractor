@@ -1,45 +1,114 @@
-// import axios from 'axios';
-// import * as cheerio from 'cheerio';
+import type { SearchInfo } from '@renderer/components/Article/ArticleSearch';
 import puppeteer from 'puppeteer';
 import type { Page } from 'puppeteer';
 import _ from 'lodash';
-export async function getArticleSearchList(event: Electron.IpcMainInvokeEvent, url: string) {
+
+export async function getArticleSearchList(event: Electron.IpcMainInvokeEvent, searchInfo: string) {
 	const browser = await puppeteer.launch({
-		headless: true, //无头模式，默认是隐藏界面的,true.改成false,显示界面。
+		headless: false, //无头模式，默认是隐藏界面的,true.改成false,显示界面。
 		slowMo: 100, //设置浏览器每一步之间的时间间隔，单位毫秒
-		defaultViewport: { width: 1366, height: 760 }, // 设置浏览器视窗
+		defaultViewport: { width: 1366, height: 900 }, // 设置浏览器视窗
 	});
+	let searchInfoObj: SearchInfo = JSON.parse(searchInfo);
 	const page = await browser.newPage(); // 打开一个新页面
-	await page.goto(url); // 跳转到指定网页
-	await page.waitForSelector('.cs-card-content'); // 等待元素加载完成
-	const articleInfo = await getArticleBaseInfo(page);
-	await browser.close();
+	const articleInfo = await getArticleList(event, page, searchInfoObj);
+	// await browser.close();
+	return articleInfo;
+}
+
+/**
+ * @description: 循环获取文章列表
+ * @param {Page} page puppeteer page
+ * @param {SearchInfo} searchInfo 搜索信息
+ */
+async function getArticleList(event: Electron.IpcMainInvokeEvent, page: Page, searchInfo: SearchInfo) {
+	let articleInfo: any = [];
+	const timeStamps = getTimeStamps(7);
+	// 循环获取文章列表
+	for (let i = 0; i < Number(searchInfo.pageIndex); i++) {
+		let url = `https://so.toutiao.com/search?dvpf=pc&source=pagination&keyword=${searchInfo.keyword}&pd=synthesis&action_type=pagination&from=search_tab&cur_tab_title=search_tab&filter_vendor=site&index_resource=site&filter_period=week&min_time=${timeStamps.daysAgoTimestamp}&max_time=${timeStamps.currentTimestamp}&page_num=${i}&search_id=20231220212326511E0B44ED30E84651F6`;
+		await page.goto(url); // 跳转到指定网页
+		await page.waitForSelector('.cs-card-content'); // 等待元素加载完成
+		articleInfo = _.concat(articleInfo, await getArticleInfo(page));
+		// 每获取完一页，就发送一次进度
+		event.sender.send('getArticleSearchListProgress', i);
+	}
 	return articleInfo;
 }
 
 /**
  * @description: 获取文章基础信息
+ * @param {any} obj 存放文章基础信息的对象
+ * @param {Element} element 文章基础信息所在的元素
+ * @return {any} 文章基础信息
+ */
+async function getArticleBaseInfo(obj: any, element: Element) {
+	const urlPrefix = 'https://so.toutiao.com';
+	// 先获取链接和标题
+	let aElement = element.querySelector('.align-items-center a');
+	obj.url = urlPrefix + aElement?.getAttribute('href');
+	obj.title = (aElement as HTMLAnchorElement)?.innerText;
+	// 然后获取文章基础信息
+	let infoElement = element.querySelectorAll('.align-items-center.cs-source-content span');
+	if (infoElement.length <= 5) {
+		obj.author = (infoElement[1] as HTMLAnchorElement)?.innerText ?? '未知';
+		(infoElement[2] as HTMLAnchorElement)?.innerText.includes('评论')
+			? (obj.commentNum = (infoElement[2] as HTMLAnchorElement)?.innerText)
+			: (obj.date = (infoElement[2] as HTMLAnchorElement)?.innerText);
+		// 如果经过上面的处理没有获取到评论数，那么就赋值为 0
+		if (!obj.commentNum) {
+			obj.commentNum = '0';
+		}
+		obj.date = (infoElement[3] as HTMLAnchorElement)?.innerText ?? '未知';
+	}
+	return obj;
+}
+
+/**
+ * @description: 异步获取文章基础信息
  * @param {Page} page puppeteer page
  * @return {Promise<any>} 文章基础信息
  */
-async function getArticleBaseInfo(page: Page) {
-	let articleInfo = await page.$$eval('.cs-view.cs-view-block.cs-card-content', (elements) => {
-		let allElements = elements.slice(4, elements.length - 1);
-		return allElements.map((element) => {
-			let obj: any = {};
-			// 先获取链接和标题
-			let aElement = element.querySelector('.align-items-center a');
-			obj.url = aElement?.getAttribute('href');
-			obj.title = (aElement as HTMLAnchorElement)?.innerText;
-			// 然后获取文章基础信息
-			let infoElement = element.querySelectorAll('.align-items-center.cs-source-content span');
-			if (infoElement.length <= 4) {
-				obj.author = (infoElement[1] as HTMLAnchorElement)?.innerText ?? '未知';
-				obj.commentNum = (infoElement[2] as HTMLAnchorElement)?.innerText ?? '0';
-				obj.date = (infoElement[3] as HTMLAnchorElement)?.innerText ?? '未知';
-			}
-			return obj;
-		});
-	});
+async function getArticleInfo(page: Page) {
+	// 将 getArticleBaseInfo 函数转换为字符串，以便在浏览器环境中使用
+	let getArticleBaseInfoStr = getArticleBaseInfo.toString();
+	// 使用 Puppeteer 的 $$eval 方法在浏览器环境中执行 JavaScript 代码
+	// 这个方法会在每个匹配 '.cs-view.cs-view-block.cs-card-content' 选择器的元素上执行第二个参数提供的函数
+	let articleInfo = await page.$$eval(
+		'.cs-view.cs-view-block.cs-card-content',
+		async (elements, getArticleBaseInfoStr) => {
+			// 在浏览器环境中，使用 eval 函数将 getArticleBaseInfoStr 转换回函数
+			let getArticleBaseInfo = eval('(' + getArticleBaseInfoStr + ')');
+			// 去掉第一个和最后一个元素
+			let allElements = elements.slice(1, elements.length - 1);
+			// 对每个元素调用 getArticleBaseInfo 函数，并将结果存入 promises 数组
+			let promises = allElements.map(async (element) => {
+				let obj: any = {};
+				obj = await getArticleBaseInfo(obj, element);
+				return obj;
+			});
+			// 使用 Promise.all 函数等待所有的 Promise 对象都完成，然后返回结果
+			return Promise.all(promises);
+		},
+		// 将 getArticleBaseInfoStr 作为 $$eval 方法的第三个参数传递，这样它就可以在回调函数中使用了
+		getArticleBaseInfoStr
+	);
 	return articleInfo;
+}
+
+/**
+ * @description: 获取当前时间戳和七天前的时间戳
+ * @param {number} daysAgo X天前的时间戳
+ * @return {Object} 当前时间戳和七天前的时间戳
+ */
+export function getTimeStamps(daysAgo: number): { currentTimestamp: number; daysAgoTimestamp: number } {
+	const currentDate = new Date();
+	const currentTimestamp = Math.floor(currentDate.getTime() / 1000);
+	const sevenDaysAgoDate = new Date();
+	sevenDaysAgoDate.setDate(currentDate.getDate() - daysAgo);
+	const daysAgoTimestamp = Math.floor(sevenDaysAgoDate.getTime() / 1000);
+	return {
+		currentTimestamp,
+		daysAgoTimestamp,
+	};
 }

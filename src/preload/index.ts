@@ -1,3 +1,4 @@
+import { SearchInfo } from './../renderer/components/Article/ArticleSearch';
 import { contextBridge, ipcRenderer } from 'electron';
 import { electronAPI } from '@electron-toolkit/preload';
 
@@ -9,8 +10,8 @@ const api = {
 			callback(event, result);
 		});
 	},
-	getArticleSearchList: (url: string) => {
-		return ipcRenderer.invoke('getArticleSearchList', url);
+	getArticleSearchList: (SearchInfo: SearchInfo) => {
+		return ipcRenderer.invoke('getArticleSearchList', SearchInfo);
 	},
 };
 

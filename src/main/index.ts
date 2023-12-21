@@ -2,14 +2,12 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron';
 import { join } from 'path';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils';
 import icon from '../../resources/icon.png?asset';
-import { readDir } from './readDir';
-import { getElectronVersion } from './version';
-import { getArticleSearchList } from '../preload/ArticleCrawler/ArticleResult';
+import { ipcHandlers } from './ipcHandlers/index';
 function createWindow(): BrowserWindow {
 	// Create the browser window.
 	const mainWindow = new BrowserWindow({
 		width: 900,
-		height: 670,
+		height: 700,
 		show: false,
 		autoHideMenuBar: true,
 		...(process.platform === 'linux' ? { icon } : {}),
@@ -98,6 +96,9 @@ if (!gotTheLock) {
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
 
-ipcMain.on('readDir', readDir);
-ipcMain.handle('getElectronVersion', getElectronVersion);
-ipcMain.handle('getArticleSearchList', getArticleSearchList);
+// ipcMain.on('readDir', readDir);
+// ipcMain.handle('getElectronVersion', getElectronVersion);
+// ipcMain.handle('getArticleSearchList', getArticleSearchList);
+for (let key in ipcHandlers) {
+	ipcMain.handle(key, ipcHandlers[key]);
+}

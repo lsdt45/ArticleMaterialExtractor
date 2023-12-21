@@ -19,12 +19,13 @@
 </template>
 
 <script setup lang="ts">
-	import { type ArticleData, tableColumns } from './ArticleSearch';
-
+	import _ from 'lodash';
+	import { type ArticleData, type SearchInfo, tableColumns } from './ArticleSearch';
 	const message = useMessage();
+	const { ipcRenderer } = window.electron;
 
 	// 要搜索的关键词和要获取的页数
-	let searchInfo = ref({
+	let searchInfo = ref<SearchInfo>({
 		keyword: '',
 		pageIndex: '',
 	});
@@ -43,11 +44,10 @@
 		// 显示进度条
 		showModal.value = true;
 		try {
-			for (let i = 0; i < Number(searchInfo.value.pageIndex); i++) {
-				await getArticleSearchList(i);
-				percentage.value = Number((((i + 1) / Number(searchInfo.value.pageIndex)) * 100).toFixed(0));
-			}
+			await getArticleSearchList();
+			// percentage.value = Number((((i + 1) / Number(searchInfo.value.pageIndex)) * 100).toFixed(0));
 		} catch (err) {
+			console.error(err);
 			message.error('获取数据失败，请重试');
 		} finally {
 			showModal.value = false;
@@ -67,15 +67,34 @@
 		data = data.filter((item: ArticleData) => {
 			return item.author && !item.commentNum.includes('视频');
 		});
+		// 删除掉data.commentNum里的'评论'字样
+		data.forEach((item: ArticleData) => {
+			item.commentNum = item.commentNum.replace('评论', '');
+		});
 		return data;
 	}
 
-	async function getArticleSearchList(pageIndex = 0) {
-		let url = `https://so.toutiao.com/search?dvpf=pc&source=pagination&keyword=${searchInfo.value.keyword}&pd=synthesis&action_type=pagination&from=search_tab&cur_tab_title=search_tab&filter_vendor=site&index_resource=site&filter_period=all&min_time=0&max_time=1703057141&page_num=${pageIndex}`;
-		let data = await window.api.getArticleSearchList(url);
+	/**
+	 * @description: 监听主进程发送的事件，更新进度条进度
+	 */
+	async function listenProgress() {
+		ipcRenderer.on('getArticleSearchListProgress', (event, arg: number) => {
+			percentage.value = Number(((arg / Number(searchInfo.value.pageIndex)) * 100).toFixed(0));
+		});
+	}
+
+	/**
+	 * @description: 获取文章列表数据
+	 */
+	async function getArticleSearchList() {
+		let data = await window.api.getArticleSearchList(JSON.stringify(searchInfo.value));
 		data = handleData(data);
 		articleListData.value = articleListData.value.concat(data);
 	}
+
+	onMounted(() => {
+		listenProgress();
+	});
 </script>
 
 <style lang="scss">

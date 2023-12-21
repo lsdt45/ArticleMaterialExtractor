@@ -5,6 +5,10 @@ export interface ArticleData {
 	commentNum: string;
 	date: string;
 }
+export interface SearchInfo {
+	keyword: string;
+	pageIndex: string;
+}
 
 export let tableColumns = [
 	{
@@ -14,6 +18,9 @@ export let tableColumns = [
 	{
 		title: '文章链接',
 		key: 'url',
+		ellipsis: {
+			tooltip: true,
+		},
 	},
 	{
 		title: '作者',
