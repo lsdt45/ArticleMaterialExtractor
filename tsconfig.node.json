@@ -9,7 +9,7 @@
     "src/renderer/global.d.ts",
     "src/renderer/**/*",
     "src/renderer/**/*.vue",
-    "src/preload/*.d.ts", "src/main/ipcHandlers/readDir.ts", "src/main/ipcHandlers/version.ts",
+    "src/preload/*.d.ts", "src/main/ipcHandlers/getDirPath.ts", "src/main/ipcHandlers/version.ts",
   ],
   "compilerOptions": {
     "composite": true,
@@ -18,8 +18,14 @@
     ],
     "baseUrl": ".",
     "paths": {
+      "@main/*": [
+        "src/main/*"
+      ],
       "@renderer/*": [
         "src/renderer/*"
+      ],
+      "@preload/*": [
+        "src/preload/*"
       ]
     }
   }

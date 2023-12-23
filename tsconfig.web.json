@@ -6,13 +6,20 @@
     "src/renderer/**/*",
     "src/renderer/**/*.vue",
     "src/preload/*.d.ts",
+    "src/preload/**/*",
   ],
   "compilerOptions": {
     "composite": true,
     "baseUrl": ".",
     "paths": {
+      "@main/*": [
+        "src/main/*"
+      ],
       "@renderer/*": [
         "src/renderer/*"
+      ],
+      "@preload/*": [
+        "src/preload/*"
       ]
     }
   }

@@ -13,6 +13,9 @@ const api = {
 	getArticleSearchList: (SearchInfo: SearchInfo) => {
 		return ipcRenderer.invoke('getArticleSearchList', SearchInfo);
 	},
+	extractArticleContent: (url: string, title: string) => {
+		return ipcRenderer.invoke('extractArticleContent', url, title);
+	},
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to
