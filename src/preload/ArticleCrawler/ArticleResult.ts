@@ -1,18 +1,19 @@
 import type { SearchInfo } from '@renderer/components/Article/ArticleSearch';
+import { ArticleEvent } from './ArticleEvent';
 import puppeteer from 'puppeteer';
 import type { Page } from 'puppeteer';
 import _ from 'lodash';
 
 export async function getArticleSearchList(event: Electron.IpcMainInvokeEvent, searchInfo: string) {
 	const browser = await puppeteer.launch({
-		headless: false, //无头模式，默认是隐藏界面的,true.改成false,显示界面。
+		headless: true, //无头模式，默认是隐藏界面的，改成false,显示界面。
 		slowMo: 100, //设置浏览器每一步之间的时间间隔，单位毫秒
-		defaultViewport: { width: 1366, height: 900 }, // 设置浏览器视窗
+		defaultViewport: { width: 0, height: 0 }, // 设置浏览器视窗
 	});
 	let searchInfoObj: SearchInfo = JSON.parse(searchInfo);
 	const page = await browser.newPage(); // 打开一个新页面
 	const articleInfo = await getArticleList(event, page, searchInfoObj);
-	// await browser.close();
+	await browser.close();
 	return articleInfo;
 }
 
@@ -26,12 +27,13 @@ async function getArticleList(event: Electron.IpcMainInvokeEvent, page: Page, se
 	const timeStamps = getTimeStamps(7);
 	// 循环获取文章列表
 	for (let i = 0; i < Number(searchInfo.pageIndex); i++) {
-		let url = `https://so.toutiao.com/search?dvpf=pc&source=pagination&keyword=${searchInfo.keyword}&pd=synthesis&action_type=pagination&from=search_tab&cur_tab_title=search_tab&filter_vendor=site&index_resource=site&filter_period=week&min_time=${timeStamps.daysAgoTimestamp}&max_time=${timeStamps.currentTimestamp}&page_num=${i}&search_id=20231220212326511E0B44ED30E84651F6`;
+		// let url = `https://so.toutiao.com/search?dvpf=pc&source=search_subtab_switch&keyword=${searchInfo.keyword}&pd=information&action_type=pagination&from=news&cur_tab_title=search_tab&filter_vendor=site&index_resource=site&filter_period=week&min_time=${timeStamps.daysAgoTimestamp}&max_time=${timeStamps.currentTimestamp}&page_num=${i}&search_id=20231220212326511E0B44ED30E84651F6`;
+		let url = `https://so.toutiao.com/search?dvpf=pc&source=search_subtab_switch&keyword=${searchInfo.keyword}&pd=information&action_type=pagination&from=news&cur_tab_title=search_tab&filter_vendor=site&index_resource=site&page_num=${i}&search_id=`;
 		await page.goto(url); // 跳转到指定网页
 		await page.waitForSelector('.cs-card-content'); // 等待元素加载完成
 		articleInfo = _.concat(articleInfo, await getArticleInfo(page));
 		// 每获取完一页，就发送一次进度
-		event.sender.send('getArticleSearchListProgress', i);
+		event.sender.send(ArticleEvent.ArticleSearchListProgress, i);
 	}
 	return articleInfo;
 }
@@ -96,7 +98,8 @@ async function getArticleInfo(page: Page) {
 			// 在浏览器环境中，使用 eval 函数将 getArticleBaseInfoStr 转换回函数
 			let getArticleBaseInfo = eval('(' + getArticleBaseInfoStr + ')');
 			// 去掉第一个和最后一个元素
-			let allElements = elements.slice(1, elements.length - 1);
+			// let allElements = elements.slice(1, elements.length - 1);
+      let allElements = elements;
 			// 对每个元素调用 getArticleBaseInfo 函数，并将结果存入 promises 数组
 			let promises = allElements.map(async (element) => {
 				let obj: any = {};
@@ -127,37 +130,4 @@ export function getTimeStamps(daysAgo: number): { currentTimestamp: number; days
 		currentTimestamp,
 		daysAgoTimestamp,
 	};
-}
-
-/**
- * 解析文章信息元素
- * @param {any} obj - 用于存储文章信息的对象
- * @param {NodeListOf<Element>} infoElement - 包含文章信息的元素列表
- * @returns {any} 包含文章信息的对象
- */
-function parseArticleInfo(obj: any, infoElement: NodeListOf<Element>) {
-	for (let index = 0; index < infoElement.length; index++) {
-		// 从第二个开始赋值。第二个必定是作者。
-		if (index === 0) continue;
-		if (index === 1) {
-			obj.author = (infoElement[index] as HTMLAnchorElement)?.innerText ?? '未知';
-			continue;
-		}
-		// 判断是否包含'评论'。
-		if ((infoElement[index] as HTMLAnchorElement)?.innerText.includes('评论')) {
-			obj.commentNum = (infoElement[index] as HTMLAnchorElement)?.innerText;
-		}
-		// 判断是否包含时间关键词。
-		if (timeKeywords.some((keyword) => (infoElement[index] as HTMLAnchorElement)?.innerText.includes(keyword))) {
-			obj.date = (infoElement[index] as HTMLAnchorElement)?.innerText ?? '未知';
-		}
-		// 如果经过上面的处理没有获取到评论数和日期，那么就将它们赋值为 0 和 未知
-		if (!obj.commentNum) {
-			obj.commentNum = '0';
-		}
-		if (!obj.date) {
-			obj.date = '未知';
-		}
-	}
-	return obj;
 }

@@ -1,0 +1,52 @@
+import puppeteer from 'puppeteer';
+import type { Page } from 'puppeteer';
+import fs from 'fs';
+import { ArticleEvent } from './ArticleEvent';
+
+/**
+ * @description: 提取文章内容
+ * @param {Electron.IpcMainInvokeEvent} event
+ * @param {string} url 文章链接
+ * @param {string} title 文章标题
+ */
+export async function extractArticleContent(event: Electron.IpcMainInvokeEvent, url: string, title: string) {
+	let articleContent = {
+		text: '',
+		image: '',
+	};
+	const browser = await puppeteer.launch({
+		headless: false, //无头模式，默认是隐藏界面的，改成false,显示界面。
+		slowMo: 100, //设置浏览器每一步之间的时间间隔，单位毫秒
+		defaultViewport: { width: 1366, height: 900 }, // 设置浏览器视窗
+	});
+	try {
+		const page = await browser.newPage();
+		await page.goto(url, { timeout: 60000 });
+		// 等待文章内容加载完成
+		await page.waitForSelector('.article-content', { timeout: 60000 });
+		// 提取文章的文本内容
+		articleContent.text = await getArticleTextContent(page);
+		let path = `./${title.replace(/[<>:"/\\|?*]+/g, '')}.txt`;
+		fs.writeFileSync(path, articleContent.text);
+		// 发送提取完成的消息
+		event.sender.send(ArticleEvent.ArticleExtractEnd, title);
+	} catch (err) {
+		event.sender.send(ArticleEvent.ArticleExtractEnd, false);
+		console.log(err);
+	}
+	await browser.close();
+}
+
+/**
+ * @description: 提取文章的文本内容
+ * @param {Page} page puppeteer page
+ */
+async function getArticleTextContent(page: Page) {
+	const articleText = await page.$$eval('.article-content p', (elements) => {
+		return elements.map((element) => {
+			return element.innerText;
+		});
+	});
+	let resultText = articleText.join('\n');
+	return resultText;
+}
