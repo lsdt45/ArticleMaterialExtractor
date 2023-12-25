@@ -16,6 +16,9 @@ const api = {
 	extractArticleContent: (url: string, title: string) => {
 		return ipcRenderer.invoke('extractArticleContent', url, title);
 	},
+	openUrl: (url: string) => {
+		return ipcRenderer.invoke('openUrl', url);
+	},
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

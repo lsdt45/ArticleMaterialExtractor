@@ -3,10 +3,11 @@ import { ArticleEvent } from './ArticleEvent';
 import puppeteer from 'puppeteer';
 import type { Page } from 'puppeteer';
 import _ from 'lodash';
+import { shell } from 'electron';
 
 export async function getArticleSearchList(event: Electron.IpcMainInvokeEvent, searchInfo: string) {
 	const browser = await puppeteer.launch({
-		headless: true, //无头模式，默认是隐藏界面的，改成false,显示界面。
+		headless: false, //无头模式，默认是隐藏界面的，改成false,显示界面。
 		slowMo: 100, //设置浏览器每一步之间的时间间隔，单位毫秒
 		defaultViewport: { width: 0, height: 0 }, // 设置浏览器视窗
 	});
@@ -15,6 +16,15 @@ export async function getArticleSearchList(event: Electron.IpcMainInvokeEvent, s
 	const articleInfo = await getArticleList(event, page, searchInfoObj);
 	await browser.close();
 	return articleInfo;
+}
+
+/**
+ * @description: 打开链接
+ * @param title - description.
+ * @return
+ */
+export function openUrl(event: Electron.IpcMainInvokeEvent, url: string) {
+	shell.openExternal(url);
 }
 
 /**
@@ -48,27 +58,30 @@ async function getArticleBaseInfo(obj: any, element: Element) {
 	const urlPrefix = 'https://so.toutiao.com';
 	// 可能的时间关键词
 	const timeKeywords = ['小时前', '分钟前', '秒前', '天前', '月前', '年前', '昨天', '前天'];
+	const reg = /(\d{1,2}月)(\d{1,2}日)/;
 	// 先获取链接和标题
 	let aElement = element.querySelector('.align-items-center a');
 	obj.url = urlPrefix + aElement?.getAttribute('href');
 	obj.title = (aElement as HTMLAnchorElement)?.innerText;
 	// 然后获取文章基础信息
 	let infoElement = element.querySelectorAll('.align-items-center.cs-source-content span');
+	debugger;
 	if (infoElement.length <= 5) {
 		for (let index = 0; index < infoElement.length; index++) {
+			let infoElementTemp = infoElement[index] as HTMLAnchorElement;
 			// 从第二个开始赋值。第二个必定是作者。
 			if (index === 0) continue;
 			if (index === 1) {
-				obj.author = (infoElement[index] as HTMLAnchorElement)?.innerText ?? '未知';
+				obj.author = infoElementTemp?.innerText ?? '未知';
 				continue;
 			}
 			// 判断是否包含'评论'。
-			if ((infoElement[index] as HTMLAnchorElement)?.innerText.includes('评论')) {
-				obj.commentNum = (infoElement[index] as HTMLAnchorElement)?.innerText;
+			if (infoElementTemp?.innerText.includes('评论')) {
+				obj.commentNum = infoElementTemp?.innerText;
 			}
 			// 判断是否包含时间关键词。
-			if (timeKeywords.some((keyword) => (infoElement[index] as HTMLAnchorElement)?.innerText.includes(keyword))) {
-				obj.date = (infoElement[index] as HTMLAnchorElement)?.innerText ?? '未知';
+			if (timeKeywords.some((keyword) => infoElementTemp?.innerText.includes(keyword) || reg.test(infoElementTemp?.innerText))) {
+				obj.date = infoElementTemp?.innerText ?? '未知';
 			}
 			// 如果经过上面的处理没有获取到评论数和日期，那么就将它们赋值为 0 和 未知
 			if (!obj.commentNum) {
@@ -99,7 +112,7 @@ async function getArticleInfo(page: Page) {
 			let getArticleBaseInfo = eval('(' + getArticleBaseInfoStr + ')');
 			// 去掉第一个和最后一个元素
 			// let allElements = elements.slice(1, elements.length - 1);
-      let allElements = elements;
+			let allElements = elements;
 			// 对每个元素调用 getArticleBaseInfo 函数，并将结果存入 promises 数组
 			let promises = allElements.map(async (element) => {
 				let obj: any = {};

@@ -32,20 +32,6 @@ export let tableColumns = [
 		ellipsis: {
 			tooltip: true,
 		},
-    render(row: ArticleData) {
-			return h(
-				NButton,
-				{
-					type: 'primary',
-					size: 'small',
-					onClick: () => {
-						showLoading.value = true;
-						window.api.extractArticleContent(row.url, row.title);
-					},
-				},
-				{ default: () => '打开链接' }
-			);
-		},
 	},
 	{
 		title: '作者',

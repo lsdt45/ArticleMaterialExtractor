@@ -2,12 +2,27 @@
 	<div class="article-search__wrapper">
 		<n-spin :show="showLoading" size="large">
 			<div class="search-area">
-				<n-input v-model:value="searchInfo.keyword" class="input-keyword" type="text" size="small" placeholder="影视名" />
+				<n-input v-model:value="searchInfo.keyword" class="input-keyword" type="text" size="small" placeholder="关键词" />
 				<n-input v-model:value="searchInfo.pageIndex" class="input-pageindex" type="text" size="small" placeholder="要获取的页数" />
-				<n-button type="primary" @click="getData"> 提取数据 </n-button>
+				<n-button type="primary" @click="getData"> 获取列表 </n-button>
 			</div>
 			<div class="result-area">
-				<n-data-table :max-height="500" :columns="tableColumns" :data="articleListData" :pagination="false" :bordered="true" />
+				<n-data-table
+					:max-height="500"
+					:columns="tableColumns"
+					:data="articleListData"
+					:pagination="false"
+					:bordered="true"
+					:row-props="rowProps" />
+				<n-dropdown
+					placement="bottom-start"
+					trigger="manual"
+					:x="x"
+					:y="y"
+					:options="dropDownOptions"
+					:show="showDropdown"
+					:on-clickoutside="onClickoutside"
+					@select="handleSelect" />
 			</div>
 			<div class="loading-data">
 				<n-modal :show="showModal">
@@ -31,10 +46,18 @@
 	import _ from 'lodash';
 	import { ArticleEvent } from '../../../preload/ArticleCrawler/ArticleEvent';
 	import { type ArticleData, type SearchInfo, LoadType, tableColumns, showModal, loadType, showLoading } from './ArticleSearch';
+	import type { DropdownOption } from 'naive-ui';
 
 	const message = useMessage();
 	const { ipcRenderer } = window.electron;
-
+	const x = ref(0);
+	const y = ref(0);
+	const dropDownOptions: DropdownOption[] = [
+		{
+			label: '打开链接',
+			key: 'openUrl',
+		},
+	];
 	// 要搜索的关键词和要获取的页数
 	let searchInfo = ref<SearchInfo>({
 		keyword: '',
@@ -44,6 +67,10 @@
 	let articleListData = ref<ArticleData[]>([]);
 	// 获取数据的进度
 	let percentage = ref(0);
+	// 是否显示下拉菜单
+	let showDropdown = ref(false);
+	// 当前右键点击的行的数据
+	let contextMenuRow: ArticleData = {} as ArticleData;
 	/**
 	 * @description: 获取数据
 	 */
@@ -116,8 +143,50 @@
 	 * @description: 获取文章列表数据
 	 */
 	async function getArticleSearchList() {
+		// 异常处理
+		if (searchInfo.value.keyword === '') {
+			message.error('请输入关键词');
+			return;
+		}
+		if (searchInfo.value.pageIndex === '') {
+			searchInfo.value.pageIndex = '1';
+		}
+
 		let data = await window.api.getArticleSearchList(JSON.stringify(searchInfo.value));
 		articleListData.value = handleData(data);
+	}
+
+	/**
+	 * @description: 点击下拉菜单区域外
+	 */
+	function onClickoutside() {
+		showDropdown.value = false;
+	}
+
+	/**
+	 * @description: 给每行设置右键菜单
+	 */
+	function rowProps(row: ArticleData) {
+		return {
+			onContextmenu: (e: MouseEvent) => {
+				e.preventDefault();
+				showDropdown.value = false;
+				nextTick().then(() => {
+					showDropdown.value = true;
+					x.value = e.clientX;
+					y.value = e.clientY;
+					contextMenuRow = row;
+				});
+			},
+		};
+	}
+	/**
+	 * @description: 下拉菜单选项点击事件
+	 * @param {string} key 选项的key
+	 */
+	function handleSelect(key: string) {
+		window.api.openUrl(contextMenuRow.url);
+		showDropdown.value = false;
 	}
 
 	onMounted(() => {
