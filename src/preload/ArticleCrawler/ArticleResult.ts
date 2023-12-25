@@ -7,7 +7,7 @@ import { shell } from 'electron';
 
 export async function getArticleSearchList(event: Electron.IpcMainInvokeEvent, searchInfo: string) {
 	const browser = await puppeteer.launch({
-		headless: false, //无头模式，默认是隐藏界面的，改成false,显示界面。
+		headless: true, //无头模式，默认是隐藏界面的，改成false,显示界面。
 		slowMo: 100, //设置浏览器每一步之间的时间间隔，单位毫秒
 		defaultViewport: { width: 0, height: 0 }, // 设置浏览器视窗
 	});
@@ -65,7 +65,6 @@ async function getArticleBaseInfo(obj: any, element: Element) {
 	obj.title = (aElement as HTMLAnchorElement)?.innerText;
 	// 然后获取文章基础信息
 	let infoElement = element.querySelectorAll('.align-items-center.cs-source-content span');
-	debugger;
 	if (infoElement.length <= 5) {
 		for (let index = 0; index < infoElement.length; index++) {
 			let infoElementTemp = infoElement[index] as HTMLAnchorElement;
