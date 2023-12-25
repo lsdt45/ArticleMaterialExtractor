@@ -2,6 +2,7 @@ import puppeteer from 'puppeteer';
 import type { Page } from 'puppeteer';
 import fs from 'fs';
 import { ArticleEvent } from './ArticleEvent';
+import axios from 'axios';
 
 /**
  * @description: 提取文章内容
@@ -25,9 +26,9 @@ export async function extractArticleContent(event: Electron.IpcMainInvokeEvent, 
 		// 等待文章内容加载完成
 		await page.waitForSelector('.article-content', { timeout: 60000 });
 		// 提取文章的文本内容
-		articleContent.text = await getArticleTextContent(page);
-		let path = `./${title.replace(/[<>:"/\\|?*]+/g, '')}.txt`;
-		fs.writeFileSync(path, articleContent.text);
+		await getArticleTextContent(page, title);
+		// 提取文章的图片
+		await getArticleImageContent(page, title);
 		// 发送提取完成的消息
 		event.sender.send(ArticleEvent.ArticleExtractEnd, title);
 	} catch (err) {
@@ -40,13 +41,41 @@ export async function extractArticleContent(event: Electron.IpcMainInvokeEvent, 
 /**
  * @description: 提取文章的文本内容
  * @param {Page} page puppeteer page
+ * @param {string} title 文章标题
  */
-async function getArticleTextContent(page: Page) {
+async function getArticleTextContent(page: Page, title: string) {
 	const articleText = await page.$$eval('.article-content p', (elements) => {
 		return elements.map((element) => {
 			return element.innerText;
 		});
 	});
 	let resultText = articleText.join('\n');
-	return resultText;
+	let path = `./${title.replace(/[<>:"/\\|?*]+/g, '')}.txt`;
+	fs.writeFileSync(path, resultText);
+}
+
+/**
+ * @description: 提取文章的图片
+ * @param {Page} page puppeteer page
+ * @param {string} title 文章标题
+ */
+async function getArticleImageContent(page: Page, title: string) {
+	// 获取所有图片的链接
+	const imageUrls = await page.$$eval('.pgc-img img', (elements) => {
+		debugger;
+		return elements.map((element) => {
+			return element.getAttribute('src') ?? '';
+		});
+	});
+	for (let i = 0; i < imageUrls.length; i++) {
+		let url = imageUrls[i];
+		const imageResp = await axios({
+			url: url,
+			responseType: 'arraybuffer',
+		});
+		// 图片名称
+		const imageName = `${title}-${i}`;
+		const path = `./${imageName.replace(/[<>:"/\\|?*]+/g, '')}.jpg`;
+		fs.writeFileSync(path, imageResp.data);
+	}
 }
