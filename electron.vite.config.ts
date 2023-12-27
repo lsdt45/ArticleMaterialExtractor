@@ -33,5 +33,17 @@ export default defineConfig({
 				resolvers: [NaiveUiResolver()],
 			}),
 		],
+		css: {
+			preprocessorOptions: {
+				// 这里配置 mixin.scss 混合文件的全局引入
+				scss: {
+					additionalData: `@import "./src/renderer/common/styles/index.scss";`,
+				},
+			},
+		},
+		build: {
+			// 在开发和生产模式中启用 Source Maps
+			sourcemap: 'inline',
+		},
 	},
 });

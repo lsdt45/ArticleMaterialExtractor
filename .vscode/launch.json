@@ -24,6 +24,10 @@
 			"timeout": 60000,
 			"presentation": {
 				"hidden": true
+			},
+			"sourceMaps": true,
+			"sourceMapPathOverrides": {
+				"webpack:///*": "${webRoot}/*"
 			}
 		}
 	],

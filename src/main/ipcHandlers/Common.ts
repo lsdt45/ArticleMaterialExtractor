@@ -1,0 +1,21 @@
+import { localStore } from '../localStore';
+
+/**
+ * @description: 把从渲染进程传来的 store，分别更新到主进程全局变量和本地存储
+ * @param {string} event 事件
+ * @param {string} store store
+ */
+function updateStore(event, store) {
+	global.store = JSON.parse(store);
+	localStore.set('setting', global.store);
+}
+
+/**
+ * @description: 读取本地储存的数据，先赋值给全局变量，然后发送给渲染进程
+ */
+function getLocalConfig(event) {
+	global.store = localStore.get('setting');
+	return localStore.get('setting');
+}
+
+export default { updateStore, getLocalConfig };
