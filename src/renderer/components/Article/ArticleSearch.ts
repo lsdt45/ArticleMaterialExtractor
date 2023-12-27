@@ -65,3 +65,9 @@ export let tableColumns = [
 		},
 	},
 ];
+
+// 要搜索的关键词和要获取的页数
+export let searchInfo = ref<SearchInfo>({
+	keyword: '',
+	pageIndex: '',
+});

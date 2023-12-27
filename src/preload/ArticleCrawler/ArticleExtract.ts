@@ -50,7 +50,7 @@ async function getArticleTextContent(page: Page, title: string) {
 		});
 	});
 	let resultText = articleText.join('\n');
-	let path = `./${title.replace(/[<>:"/\\|?*]+/g, '')}.txt`;
+	const path = getSavePath(title, 'txt');
 	fs.writeFileSync(path, resultText);
 }
 
@@ -62,7 +62,6 @@ async function getArticleTextContent(page: Page, title: string) {
 async function getArticleImageContent(page: Page, title: string) {
 	// 获取所有图片的链接
 	const imageUrls = await page.$$eval('.pgc-img img', (elements) => {
-		debugger;
 		return elements.map((element) => {
 			return element.getAttribute('src') ?? '';
 		});
@@ -74,8 +73,20 @@ async function getArticleImageContent(page: Page, title: string) {
 			responseType: 'arraybuffer',
 		});
 		// 图片名称
-		const imageName = `${title}-${i}`;
-		const path = `./${imageName.replace(/[<>:"/\\|?*]+/g, '')}.jpg`;
+		const path = getSavePath(title, 'jpg', i);
 		fs.writeFileSync(path, imageResp.data);
 	}
+}
+
+/**
+ * @description: 返回保存路径
+ * @param {String} title 文章标题
+ * @param {String} format 保存格式
+ * @param {Number} index 保存序号（保存多张图片时使用）
+ * @return  {String} 保存路径
+ */
+export function getSavePath(title: string, format: string, index = 0): string {
+	return index
+		? `${global.store.savePath ?? './'}/${title.replace(/[<>:"/\\|?*]+/g, '')}-${index}.${format}`
+		: `${global.store.savePath ?? './'}/${title.replace(/[<>:"/\\|?*]+/g, '')}.${format}`;
 }

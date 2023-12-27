@@ -2,6 +2,14 @@ import { SearchInfo } from './../renderer/components/Article/ArticleSearch';
 import { contextBridge, ipcRenderer } from 'electron';
 import { electronAPI } from '@electron-toolkit/preload';
 
+const common = {
+	updateStore: (store) => {
+		return ipcRenderer.invoke('updateStore', store);
+	},
+	getLocalConfig: () => {
+		return ipcRenderer.invoke('getLocalConfig');
+	},
+};
 // Custom APIs for renderer
 const api = {
 	// 读取目录文件列表回调
@@ -19,6 +27,13 @@ const api = {
 	openUrl: (url: string) => {
 		return ipcRenderer.invoke('openUrl', url);
 	},
+	getDirPath: () => {
+		return ipcRenderer.invoke('getDirPath');
+	},
+	common,
+	// updateStore: (store) => {
+	// 	return ipcRenderer.invoke('updateStore', store);
+	// },
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to
