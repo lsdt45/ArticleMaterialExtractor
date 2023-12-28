@@ -12,7 +12,20 @@ const common = {
 	exitApp: () => {
 		return ipcRenderer.invoke('exitApp');
 	},
+	minimizeWindow: () => {
+		return ipcRenderer.invoke('minimizeWindow');
+	},
+	maximizeWindow: () => {
+		return ipcRenderer.invoke('maximizeWindow');
+	},
+	unmaximizeWindow: () => {
+		return ipcRenderer.invoke('unmaximizeWindow');
+	},
+	receiveMessage: (channel, func) => {
+		ipcRenderer.on(channel, (event, ...args) => func(...args));
+	},
 };
+
 // Custom APIs for renderer
 const api = {
 	// 读取目录文件列表回调

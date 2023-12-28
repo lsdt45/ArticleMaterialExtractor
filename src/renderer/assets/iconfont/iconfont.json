@@ -6,6 +6,20 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "28410464",
+      "name": "窗口还原",
+      "font_class": "unmaximize",
+      "unicode": "e65b",
+      "unicode_decimal": 58971
+    },
+    {
+      "icon_id": "2815727",
+      "name": "文件夹",
+      "font_class": "folderOpen",
+      "unicode": "e601",
+      "unicode_decimal": 58881
+    },
+    {
       "icon_id": "1299763",
       "name": "最小化",
       "font_class": "minimize",
@@ -25,13 +39,6 @@
       "font_class": "maximize",
       "unicode": "e651",
       "unicode_decimal": 58961
-    },
-    {
-      "icon_id": "7594806",
-      "name": "folderOpen",
-      "font_class": "folderOpen",
-      "unicode": "eabe",
-      "unicode_decimal": 60094
     },
     {
       "icon_id": "162882",

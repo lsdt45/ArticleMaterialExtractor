@@ -27,6 +27,24 @@ interface api {
 		 * @description: 退出程序
 		 */
 		exitApp: () => void;
+		/**
+		 * @description: 最小化窗口
+		 */
+		minimizeWindow: () => void;
+		/**
+		 * @description: 最大化窗口
+		 */
+		maximizeWindow: () => void;
+		/**
+		 * @description: 取消最大化窗口
+		 */
+		unmaximizeWindow: () => void;
+		/**
+		 * @description: 接收主进程发送的消息
+		 * @param {string} channel 事件
+		 * @param {string} func 回调函数
+		 */
+		receiveMessage: (channel: string, func: Function) => void;
 	};
 }
 

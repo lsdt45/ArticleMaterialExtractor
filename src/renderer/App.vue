@@ -28,7 +28,7 @@
 
 <style lang="scss">
 	.window-title {
-		// -webkit-user-select: none;
-		// user-select: none;
+		-webkit-user-select: none;
+		user-select: none;
 	}
 </style>

@@ -4,17 +4,48 @@
 			<img class="window-icon" src="../assets/icon.png" alt="素材提取" />
 		</div>
 		<div class="window-title__right">
-			<span class="iconfont icon-minimize"></span>
-			<span class="iconfont icon-maximize"></span>
+			<span class="iconfont icon-minimize" @click="minimizeWindow"></span>
+			<span class="iconfont" :class="windowClass" @click="switchWindowSize"></span>
 			<span class="iconfont icon-close" @click="exitApp"></span>
 		</div>
 	</div>
 </template>
 
 <script setup lang="ts">
+	let windowIcon = ref<'maximize' | 'unmaximize'>('maximize');
+
+	const windowClass = computed(() => {
+		return windowIcon.value === 'maximize' ? 'icon-maximize' : 'icon-unmaximize';
+	});
+
 	function exitApp() {
 		window.api.common.exitApp();
 	}
+	function minimizeWindow() {
+		window.api.common.minimizeWindow();
+	}
+	function switchWindowSize() {
+		if (windowIcon.value === 'maximize') {
+			window.api.common.maximizeWindow();
+			windowIcon.value = 'unmaximize';
+		} else {
+			window.api.common.unmaximizeWindow();
+			windowIcon.value = 'maximize';
+		}
+	}
+
+	function listenMainMessage() {
+		window.api.common.receiveMessage('maximize', () => {
+			windowIcon.value = 'unmaximize';
+		});
+		window.api.common.receiveMessage('unmaximize', () => {
+			windowIcon.value = 'maximize';
+		});
+	}
+
+	onMounted(() => {
+		listenMainMessage();
+	});
 </script>
 
 <style lang="scss">

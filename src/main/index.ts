@@ -1,6 +1,7 @@
 import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron';
 import { join } from 'path';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils';
+import { WindowManager } from './WindowManager';
 // import icon from '../../resources/icon.png?asset';
 // import icon from './resources/icon.ico';
 import { ipcHandlers } from './ipcHandlers/index';
@@ -13,7 +14,6 @@ function createWindow(): BrowserWindow {
 		autoHideMenuBar: true,
 		icon: join(__dirname, '../../resources/icon.png'),
 		// ...(process.platform === 'linux' ? { icon } : {}),
-		// ...(process.platform === 'linux' ? {} : {}),
 		webPreferences: {
 			preload: join(__dirname, '../preload/index.js'),
 			sandbox: false,
@@ -78,12 +78,14 @@ if (!gotTheLock) {
 			optimizer.watchWindowShortcuts(window);
 		});
 
-		myWindow = createWindow();
-
+		// myWindow = createWindow();
+		myWindow = new WindowManager();
+		global.mainWindow = myWindow;
 		app.on('activate', function () {
 			// On macOS it's common to re-create a window in the app when the
 			// dock icon is clicked and there are no other windows open.
-			if (BrowserWindow.getAllWindows().length === 0) createWindow();
+			if (BrowserWindow.getAllWindows().length === 0) new WindowManager();
+			// if (BrowserWindow.getAllWindows().length === 0) createWindow();
 		});
 	});
 
@@ -100,9 +102,6 @@ if (!gotTheLock) {
 // code. You can also put them in separate files and require them here.
 
 addIpcHandlers(ipcHandlers);
-// for (let key in ipcHandlers) {
-// 	ipcMain.handle(key, ipcHandlers[key]);
-// }
 
 /**
  * @description: 循环遍历将对象中的所有键值对都添加到 ipcMain 中

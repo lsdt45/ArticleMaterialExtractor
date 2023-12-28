@@ -25,4 +25,24 @@ function exitApp() {
 	app.quit();
 }
 
-export default { updateStore, getLocalConfig, exitApp };
+/**
+ * @description: 最小化窗口
+ */
+function minimizeWindow() {
+	global.mainWindow.minimize();
+}
+
+/**
+ * @description: 最大化窗口
+ */
+function maximizeWindow() {
+	global.mainWindow.maximize();
+}
+
+/**
+ * @description: 取消最大化窗口
+ */
+function unmaximizeWindow() {
+	global.mainWindow.unmaximize();
+}
+export default { updateStore, getLocalConfig, exitApp, minimizeWindow, maximizeWindow, unmaximizeWindow };

@@ -55,6 +55,18 @@
           <ul class="icon_lists dib-box">
           
             <li class="dib">
+              <span class="icon iconfont">&#xe65b;</span>
+                <div class="name">窗口还原</div>
+                <div class="code-name">&amp;#xe65b;</div>
+              </li>
+          
+            <li class="dib">
+              <span class="icon iconfont">&#xe601;</span>
+                <div class="name">文件夹</div>
+                <div class="code-name">&amp;#xe601;</div>
+              </li>
+          
+            <li class="dib">
               <span class="icon iconfont">&#xe65a;</span>
                 <div class="name">最小化</div>
                 <div class="code-name">&amp;#xe65a;</div>
@@ -70,12 +82,6 @@
               <span class="icon iconfont">&#xe651;</span>
                 <div class="name">最大化</div>
                 <div class="code-name">&amp;#xe651;</div>
-              </li>
-          
-            <li class="dib">
-              <span class="icon iconfont">&#xeabe;</span>
-                <div class="name">folderOpen</div>
-                <div class="code-name">&amp;#xeabe;</div>
               </li>
           
             <li class="dib">
@@ -102,10 +108,10 @@
 <pre><code class="language-css"
 >@font-face {
   font-family: 'iconfont';
-  src: url('iconfont.woff2?t=1703726961309') format('woff2'),
-       url('iconfont.woff?t=1703726961309') format('woff'),
-       url('iconfont.ttf?t=1703726961309') format('truetype'),
-       url('iconfont.svg?t=1703726961309#iconfont') format('svg');
+  src: url('iconfont.woff2?t=1703748274207') format('woff2'),
+       url('iconfont.woff?t=1703748274207') format('woff'),
+       url('iconfont.ttf?t=1703748274207') format('truetype'),
+       url('iconfont.svg?t=1703748274207#iconfont') format('svg');
 }
 </code></pre>
           <h3 id="-iconfont-">第二步：定义使用 iconfont 的样式</h3>
@@ -132,6 +138,24 @@
         <ul class="icon_lists dib-box">
           
           <li class="dib">
+            <span class="icon iconfont icon-unmaximize"></span>
+            <div class="name">
+              窗口还原
+            </div>
+            <div class="code-name">.icon-unmaximize
+            </div>
+          </li>
+          
+          <li class="dib">
+            <span class="icon iconfont icon-folderOpen"></span>
+            <div class="name">
+              文件夹
+            </div>
+            <div class="code-name">.icon-folderOpen
+            </div>
+          </li>
+          
+          <li class="dib">
             <span class="icon iconfont icon-minimize"></span>
             <div class="name">
               最小化
@@ -155,15 +179,6 @@
               最大化
             </div>
             <div class="code-name">.icon-maximize
-            </div>
-          </li>
-          
-          <li class="dib">
-            <span class="icon iconfont icon-folderOpen"></span>
-            <div class="name">
-              folderOpen
-            </div>
-            <div class="code-name">.icon-folderOpen
             </div>
           </li>
           
@@ -205,6 +220,22 @@
           
             <li class="dib">
                 <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#icon-unmaximize"></use>
+                </svg>
+                <div class="name">窗口还原</div>
+                <div class="code-name">#icon-unmaximize</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
+                  <use xlink:href="#icon-folderOpen"></use>
+                </svg>
+                <div class="name">文件夹</div>
+                <div class="code-name">#icon-folderOpen</div>
+            </li>
+          
+            <li class="dib">
+                <svg class="icon svg-icon" aria-hidden="true">
                   <use xlink:href="#icon-minimize"></use>
                 </svg>
                 <div class="name">最小化</div>
@@ -225,14 +256,6 @@
                 </svg>
                 <div class="name">最大化</div>
                 <div class="code-name">#icon-maximize</div>
-            </li>
-          
-            <li class="dib">
-                <svg class="icon svg-icon" aria-hidden="true">
-                  <use xlink:href="#icon-folderOpen"></use>
-                </svg>
-                <div class="name">folderOpen</div>
-                <div class="code-name">#icon-folderOpen</div>
             </li>
           
             <li class="dib">
