@@ -18,11 +18,11 @@
 	async function openDirDialog() {
 		const path = await window.api.getDirPath();
 		dirPath.value = path ?? '';
-		store.settings.savePath = path ?? '';
+		store.setSavePath(path);
 	}
 
 	function initData() {
-		dirPath.value = store.settings.savePath;
+		dirPath.value = store.settings?.savePath;
 	}
 
 	function pathChange(value: string) {

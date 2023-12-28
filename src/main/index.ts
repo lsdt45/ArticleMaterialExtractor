@@ -2,6 +2,7 @@ import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron';
 import { join } from 'path';
 import { electronApp, optimizer, is } from '@electron-toolkit/utils';
 // import icon from '../../resources/icon.png?asset';
+// import icon from './resources/icon.ico';
 import { ipcHandlers } from './ipcHandlers/index';
 function createWindow(): BrowserWindow {
 	// Create the browser window.
@@ -10,8 +11,9 @@ function createWindow(): BrowserWindow {
 		height: 700,
 		show: false,
 		autoHideMenuBar: true,
+		icon: join(__dirname, '../../resources/icon.png'),
 		// ...(process.platform === 'linux' ? { icon } : {}),
-		...(process.platform === 'linux' ? {} : {}),
+		// ...(process.platform === 'linux' ? {} : {}),
 		webPreferences: {
 			preload: join(__dirname, '../preload/index.js'),
 			sandbox: false,
@@ -19,7 +21,7 @@ function createWindow(): BrowserWindow {
 			webSecurity: false,
 			devTools: is.dev ? true : false,
 		},
-		// frame: false,
+		frame: false, // 无边框窗口
 	});
 
 	mainWindow.on('ready-to-show', () => {
@@ -97,6 +99,26 @@ if (!gotTheLock) {
 // In this file you can include the rest of your app"s specific main process
 // code. You can also put them in separate files and require them here.
 
-for (let key in ipcHandlers) {
-	ipcMain.handle(key, ipcHandlers[key]);
+addIpcHandlers(ipcHandlers);
+// for (let key in ipcHandlers) {
+// 	ipcMain.handle(key, ipcHandlers[key]);
+// }
+
+/**
+ * @description: 循环遍历将对象中的所有键值对都添加到 ipcMain 中
+ * @param {object} ipcHandlers
+ */
+function addIpcHandlers(ipcHandlers: object) {
+	for (let key in ipcHandlers) {
+		let item = ipcHandlers[key];
+		// 判断当前键值对的值中，键的数量是否大于 1
+		// 如果大于 1，则说明这个值是一个对象，需要进一步遍历
+		if (Object.keys(item).length > 1) {
+			addIpcHandlers(item);
+			continue;
+		} else {
+			// 如果不是对象，则直接添加到 ipcMain 中
+			ipcMain.handle(key, item);
+		}
+	}
 }

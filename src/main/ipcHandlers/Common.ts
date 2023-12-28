@@ -1,5 +1,5 @@
 import { localStore } from '../localStore';
-
+import { app } from 'electron';
 /**
  * @description: 把从渲染进程传来的 store，分别更新到主进程全局变量和本地存储
  * @param {string} event 事件
@@ -18,4 +18,11 @@ function getLocalConfig(event) {
 	return localStore.get('setting');
 }
 
-export default { updateStore, getLocalConfig };
+/**
+ * @description: 退出程序
+ */
+function exitApp() {
+	app.quit();
+}
+
+export default { updateStore, getLocalConfig, exitApp };

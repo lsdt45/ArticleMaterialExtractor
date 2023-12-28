@@ -11,7 +11,6 @@ export const ipcHandlers = {
 	getArticleSearchList: getArticleSearchList,
 	extractArticleContent: extractArticleContent,
 	openUrl,
-	updateStore: common.updateStore,
-	getLocalConfig: common.getLocalConfig,
+	common,
 	// 在这里添加新的键值对，为新的事件添加处理函数
 };

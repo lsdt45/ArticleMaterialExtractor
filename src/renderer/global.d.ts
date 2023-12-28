@@ -23,6 +23,10 @@ interface api {
 		 * @description: 读取本地储存的数据，发送给渲染进程
 		 */
 		getLocalConfig: () => any;
+		/**
+		 * @description: 退出程序
+		 */
+		exitApp: () => void;
 	};
 }
 

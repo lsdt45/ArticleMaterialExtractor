@@ -9,6 +9,9 @@ const common = {
 	getLocalConfig: () => {
 		return ipcRenderer.invoke('getLocalConfig');
 	},
+	exitApp: () => {
+		return ipcRenderer.invoke('exitApp');
+	},
 };
 // Custom APIs for renderer
 const api = {
@@ -31,9 +34,6 @@ const api = {
 		return ipcRenderer.invoke('getDirPath');
 	},
 	common,
-	// updateStore: (store) => {
-	// 	return ipcRenderer.invoke('updateStore', store);
-	// },
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to
