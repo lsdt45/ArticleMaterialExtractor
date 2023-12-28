@@ -8,9 +8,6 @@ export class WindowManager {
 		['maximize', this.sendMaximize],
 		['unmaximize', this.sendUnmaximize],
 	]);
-	constructor() {
-		this.createWindow();
-	}
 	public createWindow(): BrowserWindow {
 		this.mainWindow = new BrowserWindow({
 			width: 900,

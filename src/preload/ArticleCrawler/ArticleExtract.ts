@@ -16,12 +16,15 @@ export async function extractArticleContent(event: Electron.IpcMainInvokeEvent, 
 		image: '',
 	};
 	const browser = await puppeteer.launch({
-		headless: false, //无头模式，默认是隐藏界面的，改成false,显示界面。
+		headless: true, //无头模式，默认是隐藏界面的，改成false,显示界面。
 		slowMo: 100, //设置浏览器每一步之间的时间间隔，单位毫秒
 		defaultViewport: { width: 1366, height: 900 }, // 设置浏览器视窗
 	});
 	try {
 		const page = await browser.newPage();
+		// 设置用户代理
+		const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36';
+		await page.setUserAgent(userAgent);
 		await page.goto(url, { timeout: 60000 });
 		// 等待文章内容加载完成
 		await page.waitForSelector('.article-content', { timeout: 60000 });

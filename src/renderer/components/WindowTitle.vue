@@ -2,6 +2,7 @@
 	<div class="window-title__wrapper">
 		<div class="window-title__left">
 			<img class="window-icon" src="../assets/icon.png" alt="素材提取" />
+			<span class="window-title-text">文章素材提取器</span>
 		</div>
 		<div class="window-title__right">
 			<span class="iconfont icon-minimize" @click="minimizeWindow"></span>
@@ -55,14 +56,22 @@
 		padding: 2px 0;
 		background-color: #4e4e4e;
 		.window-title__left {
+			position: relative;
+			left: 2em;
+			display: flex;
 			flex: 1;
 			-webkit-app-region: drag;
 			.window-icon {
-				position: relative;
-				left: 0.9em;
-				top: 3px;
 				width: 28px;
 				height: 28px;
+			}
+			.window-title-text {
+				display: flex;
+				justify-content: center;
+				align-items: center;
+				margin-left: 1em;
+				font-weight: bold;
+				color: #fff;
 			}
 		}
 		.window-title__right {
