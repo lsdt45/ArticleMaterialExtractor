@@ -23,6 +23,7 @@
       "@preload/*": [
         "src/preload/*"
       ]
-    }
+    },
+    "module": "esnext",
   }
 }

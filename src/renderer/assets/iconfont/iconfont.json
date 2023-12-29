@@ -6,6 +6,27 @@
   "description": "",
   "glyphs": [
     {
+      "icon_id": "35716750",
+      "name": "返回",
+      "font_class": "back",
+      "unicode": "e62f",
+      "unicode_decimal": 58927
+    },
+    {
+      "icon_id": "12263169",
+      "name": "关注列表",
+      "font_class": "follow-list",
+      "unicode": "e69a",
+      "unicode_decimal": 59034
+    },
+    {
+      "icon_id": "21591056",
+      "name": "数据提取",
+      "font_class": "article-extract",
+      "unicode": "e69d",
+      "unicode_decimal": 59037
+    },
+    {
       "icon_id": "28410464",
       "name": "窗口还原",
       "font_class": "unmaximize",

@@ -11,7 +11,7 @@ export class WindowManager {
 	public createWindow(): BrowserWindow {
 		this.mainWindow = new BrowserWindow({
 			width: 900,
-			height: 700,
+			height: 600,
 			show: false,
 			autoHideMenuBar: true,
 			icon: join(__dirname, '../../resources/icon.png'),

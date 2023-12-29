@@ -1,8 +1,10 @@
 <template>
 	<div class="window-title__wrapper">
-		<div class="window-title__left">
-			<img class="window-icon" src="../assets/icon.png" alt="素材提取" />
-			<span class="window-title-text">文章素材提取器</span>
+		<div class="window-title-left__wrapper">
+			<div class="window-title-left">
+				<img class="window-icon" src="../assets/icon.png" alt="素材提取" />
+				<span class="window-title-text">文章素材提取器</span>
+			</div>
 		</div>
 		<div class="window-title__right">
 			<span class="iconfont icon-minimize" @click="minimizeWindow"></span>
@@ -53,11 +55,10 @@
 	.window-title__wrapper {
 		display: flex;
 		justify-content: flex-end;
-		padding: 2px 0;
+		padding: 4px 0;
 		background-color: #4e4e4e;
-		.window-title__left {
+		.window-title-left__wrapper {
 			position: relative;
-			left: 2em;
 			display: flex;
 			flex: 1;
 			-webkit-app-region: drag;
@@ -72,6 +73,11 @@
 				margin-left: 1em;
 				font-weight: bold;
 				color: #fff;
+			}
+			.window-title-left {
+				position: relative;
+				left: 2em;
+				display: flex;
 			}
 		}
 		.window-title__right {
