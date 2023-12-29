@@ -28,12 +28,16 @@ html {
 }
 
 /* Reapply the pointer cursor for anchor tags */
-a, button {
+a,
+button {
   cursor: revert;
 }
 
 /* Remove list styles (bullets/numbers) */
-ol, ul, menu, summary {
+ol,
+ul,
+menu,
+summary {
   list-style: none;
 }
 
@@ -49,7 +53,8 @@ table {
 }
 
 /* Safari - solving issue when using user-select:none on the <body> text input doesn't working */
-input, textarea {
+input,
+textarea {
   -webkit-user-select: auto;
 }
 
@@ -106,4 +111,12 @@ meter {
 /* Remove details summary webkit styles */
 ::-webkit-details-marker {
   display: none;
+}
+
+.iconfont {
+  cursor: pointer;
+}
+
+.main-view {
+  padding: 15px 20px;
 }
