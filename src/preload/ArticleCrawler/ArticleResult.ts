@@ -35,12 +35,22 @@ export function openUrl(event: Electron.IpcMainInvokeEvent, url: string) {
 async function getArticleList(event: Electron.IpcMainInvokeEvent, page: Page, searchInfo: SearchInfo) {
 	let articleInfo: any = [];
 	const timeStamps = getTimeStamps(7);
+	// 设置用户代理
+	const userAgent = 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/58.0.3029.110 Safari/537.36';
 	// 循环获取文章列表
 	for (let i = 0; i < Number(searchInfo.pageIndex); i++) {
 		// let url = `https://so.toutiao.com/search?dvpf=pc&source=search_subtab_switch&keyword=${searchInfo.keyword}&pd=information&action_type=pagination&from=news&cur_tab_title=search_tab&filter_vendor=site&index_resource=site&filter_period=week&min_time=${timeStamps.daysAgoTimestamp}&max_time=${timeStamps.currentTimestamp}&page_num=${i}&search_id=20231220212326511E0B44ED30E84651F6`;
-		let url = `https://so.toutiao.com/search?dvpf=pc&source=search_subtab_switch&keyword=${searchInfo.keyword}&pd=information&action_type=pagination&from=news&cur_tab_title=search_tab&filter_vendor=site&index_resource=site&page_num=${i}&search_id=`;
-		await page.goto(url); // 跳转到指定网页
-		await page.waitForSelector('.cs-card-content'); // 等待元素加载完成
+		let url = `https://so.toutiao.com/search?dvpf=pc&source=input&keyword=${searchInfo.keyword}&pd=information&action_type=pagination&from=news&cur_tab_title=news&page_num=${i}`;
+		await page.setUserAgent(userAgent);
+		let pages: any[] = [];
+    let loopCount = 0;
+		while (pages.length <= 1 && loopCount < 20) {
+      loopCount++;
+			await page.goto(url); // 跳转到指定网页
+			await page.waitForSelector('.cs-card-content'); // 等待元素加载完成
+			pages = await page.$$('.cs-card-content');
+		}
+    console.log('pages.length', pages.length);
 		articleInfo = _.concat(articleInfo, await getArticleInfo(page));
 		// 每获取完一页，就发送一次进度
 		event.sender.send(ArticleEvent.ArticleSearchListProgress, i);
@@ -107,6 +117,7 @@ async function getArticleInfo(page: Page) {
 	let articleInfo = await page.$$eval(
 		'.cs-view.cs-view-block.cs-card-content',
 		async (elements, getArticleBaseInfoStr) => {
+			debugger;
 			// 在浏览器环境中，使用 eval 函数将 getArticleBaseInfoStr 转换回函数
 			let getArticleBaseInfo = eval('(' + getArticleBaseInfoStr + ')');
 			// 去掉第一个和最后一个元素

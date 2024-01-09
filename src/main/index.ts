@@ -102,17 +102,16 @@ if (!gotTheLock) {
 // code. You can also put them in separate files and require them here.
 
 addIpcHandlers(ipcHandlers);
-
 /**
  * @description: 循环遍历将对象中的所有键值对都添加到 ipcMain 中
- * @param {object} ipcHandlers
+ * @param {object} ipcHandlersParam
  */
-function addIpcHandlers(ipcHandlers: object) {
-	for (let key in ipcHandlers) {
-		let item = ipcHandlers[key];
+function addIpcHandlers(ipcHandlersParam: object) {
+	for (let key in ipcHandlersParam) {
+		let item = ipcHandlersParam[key];
 		// 判断当前键值对的值中，键的数量是否大于 1
 		// 如果大于 1，则说明这个值是一个对象，需要进一步遍历
-		if (Object.keys(item).length > 1) {
+		if (Object.keys(item).length >= 1) {
 			addIpcHandlers(item);
 			continue;
 		} else {
@@ -121,3 +120,4 @@ function addIpcHandlers(ipcHandlers: object) {
 		}
 	}
 }
+

@@ -4,6 +4,7 @@
     "electron.vite.config.*",
     "src/main/**/*",
     "src/main/**/*.ts",
+    "src/types/**/*",
     "src/preload/**/*",
     "src/renderer/env.d.ts",
     "src/renderer/**/*.d.ts",

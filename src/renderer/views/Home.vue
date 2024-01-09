@@ -21,6 +21,11 @@
 			title: '关注列表',
 			route: '/author_follow',
 		},
+		// {
+		// 	icon: 'iconfont icon-follow-list',
+		// 	title: '数据分析',
+		// 	route: '/author_follow',
+		// },
 	];
 </script>
 

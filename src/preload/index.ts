@@ -1,7 +1,7 @@
 import { SearchInfo } from './../renderer/components/Article/ArticleSearch';
 import { contextBridge, ipcRenderer } from 'electron';
 import { electronAPI } from '@electron-toolkit/preload';
-
+import followList from './FollowList/FollowList';
 const common = {
 	updateStore: (store) => {
 		return ipcRenderer.invoke('updateStore', store);
@@ -47,6 +47,7 @@ const api = {
 		return ipcRenderer.invoke('getDirPath');
 	},
 	common,
+	followList,
 };
 
 // Use `contextBridge` APIs to expose Electron APIs to

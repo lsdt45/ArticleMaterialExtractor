@@ -1,4 +1,4 @@
-import { localStore } from '../localStore';
+import { localStore } from '../../localStore';
 import { app } from 'electron';
 /**
  * @description: 把从渲染进程传来的 store，分别更新到主进程全局变量和本地存储

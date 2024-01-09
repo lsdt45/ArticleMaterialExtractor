@@ -46,6 +46,12 @@ interface api {
 		 */
 		receiveMessage: (channel: string, func: Function) => void;
 	};
+	followList: {
+		/**
+		 * 获取关注列表
+		 */
+		getFollowList: () => Promise<GlobalFollowListItem[]>;
+	};
 }
 
 interface MyGlobal {

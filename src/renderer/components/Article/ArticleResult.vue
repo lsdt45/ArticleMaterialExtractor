@@ -3,12 +3,13 @@
 		<n-spin :show="showLoading" size="large">
 			<div class="result-area">
 				<n-data-table
-					:max-height="500"
 					:columns="tableColumns"
 					:data="articleListData"
 					:pagination="false"
 					:bordered="true"
-					:row-props="rowProps" />
+					:row-props="rowProps"
+					:style="{ height: `calc(100vh - 200px)` }"
+					flex-height />
 				<n-dropdown
 					placement="bottom-start"
 					trigger="manual"

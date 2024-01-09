@@ -9,6 +9,7 @@
     "src/preload/**/*",
     "src/main/**/*",
     "src/main/**/*.ts",
+    "src/types/**/*",
   ],
   "compilerOptions": {
     "composite": true,
