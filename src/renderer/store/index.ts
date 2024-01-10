@@ -1,17 +1,18 @@
 import { defineStore } from 'pinia';
-
+import { SettingsEnum } from 'src/common/CommonVars';
 export const useStore = defineStore('main', {
 	state: () => {
 		return {
 			settings: {
 				savePath: '',
+				homePageUrl: '',
 			},
 		};
 	},
 	actions: {
-		setSavePath(path: string) {
+		saveSettings(key: SettingsEnum, value: string) {
 			if (!this.settings) return;
-			this.settings.savePath = path;
+			this.$state.settings[key] = value;
 			window.api.common.updateStore(JSON.stringify(this.$state.settings));
 		},
 	},

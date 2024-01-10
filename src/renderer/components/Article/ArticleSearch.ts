@@ -1,4 +1,5 @@
 import { NButton } from 'naive-ui';
+import { convertToTimestamp } from '../../../common/util';
 export enum LoadType {
 	GET_DATA = 'GET_DATA',
 	EXTRACT_DATA = 'EXTRACT_DATA',
@@ -25,6 +26,10 @@ export let tableColumns = [
 	{
 		title: '标题',
 		key: 'title',
+		width: 300,
+		ellipsis: {
+			tooltip: true,
+		},
 	},
 	{
 		title: '文章链接',
@@ -45,6 +50,7 @@ export let tableColumns = [
 	{
 		title: '发布日期',
 		key: 'date',
+		sorter: (row1: ArticleData, row2: ArticleData) => convertToTimestamp(row1.date) - convertToTimestamp(row2.date),
 	},
 	{
 		title: '操作',

@@ -14,7 +14,7 @@ export async function getArticleSearchList(event: Electron.IpcMainInvokeEvent, s
 	let searchInfoObj: SearchInfo = JSON.parse(searchInfo);
 	const page = await browser.newPage(); // 打开一个新页面
 	const articleInfo = await getArticleList(event, page, searchInfoObj);
-	await browser.close();
+	// await browser.close();
 	return articleInfo;
 }
 
@@ -44,7 +44,7 @@ async function getArticleList(event: Electron.IpcMainInvokeEvent, page: Page, se
 		await page.setUserAgent(userAgent);
 		let pages: any[] = [];
     let loopCount = 0;
-		while (pages.length <= 1 && loopCount < 20) {
+		while (pages.length <= 1 && loopCount < 10) {
       loopCount++;
 			await page.goto(url); // 跳转到指定网页
 			await page.waitForSelector('.cs-card-content'); // 等待元素加载完成

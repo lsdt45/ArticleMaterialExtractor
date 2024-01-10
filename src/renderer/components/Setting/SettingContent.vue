@@ -12,13 +12,14 @@
 
 <script setup lang="ts">
 	import { useStore } from '@renderer/store/index';
+	import { SettingsEnum } from 'src/common/CommonVars';
 	const store = useStore();
 	let dirPath = ref('');
 
 	async function openDirDialog() {
 		const path = await window.api.getDirPath();
 		dirPath.value = path ?? '';
-		store.setSavePath(path);
+		store.saveSettings(SettingsEnum.savePath, path);
 	}
 
 	function initData() {
@@ -26,7 +27,7 @@
 	}
 
 	function pathChange(value: string) {
-		store.setSavePath(value);
+		store.saveSettings(SettingsEnum.savePath, value);
 	}
 
 	watch(dirPath, (val) => {
