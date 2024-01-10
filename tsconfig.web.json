@@ -10,6 +10,7 @@
     "src/main/**/*",
     "src/main/**/*.ts",
     "src/types/**/*",
+    "src/common/**/*",
   ],
   "compilerOptions": {
     "composite": true,

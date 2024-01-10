@@ -50,7 +50,11 @@ interface api {
 		/**
 		 * 获取关注列表
 		 */
-		getFollowList: () => Promise<GlobalFollowListItem[]>;
+		getFollowList: (url: string) => Promise<GlobalFollowListItem[]>;
+		/**
+		 * 获取文章列表
+		 */
+		getArticleList: (userId: string) => Promise<GlobalFollowArticleListItem[]>;
 	};
 }
 
