@@ -1,6 +1,6 @@
 import { SearchInfo } from './components/Article/ArticleSearch';
 import type { ElectronAPI } from '@electron-toolkit/preload';
-
+import { StoreKey } from '../main/localStore/types';
 interface api {
 	readDirReply: (callback: (event: Event, result: { canceled: boolean }) => void) => void;
 	getArticleSearchList: (searchInfo: string) => Promise<any>;
@@ -11,14 +11,15 @@ interface api {
 	 * @description: 更新store
 	 * @param {any} store
 	 */
-	updateStore: (store: any) => Promise<any>;
+	updateStore: (key: StoreKey, store: any) => Promise<any>;
 	common: {
 		/**
 		 * @description: 把从渲染进程传来的 store，分别更新到主进程全局变量和本地存储
 		 * @param {string} event 事件
+		 * @param {StoreKey} key 要保存的键
 		 * @param {string} store store
 		 */
-		updateStore: (store: string) => void;
+		updateStore: (key: StoreKey, store: string) => void;
 		/**
 		 * @description: 读取本地储存的数据，发送给渲染进程
 		 */

@@ -4,9 +4,9 @@
 	const store = useStore();
 
 	async function initData() {
-		const config = await window.api.common.getLocalConfig();
-		if (config) {
-			store.$patch({ settings: config });
+		const localStore = await window.api.common.getLocalConfig();
+		if (localStore) {
+			store.$patch({ settings: localStore.setting });
 		}
 	}
 

@@ -29,6 +29,7 @@
 		"axios": "^1.6.4",
 		"cheerio": "^1.0.0-rc.12",
 		"chrome-remote-interface": "^0.33.0",
+		"dayjs": "^1.11.10",
 		"edge-launcher": "^1.2.2",
 		"electron-store": "^8.1.0",
 		"electron-updater": "^6.1.1",

@@ -1,6 +1,7 @@
-import { BrowserWindow, shell } from 'electron';
+import { BrowserWindow, shell, screen } from 'electron';
 import { join } from 'path';
 import { is } from '@electron-toolkit/utils';
+import common from './ipcHandlers/handlers/Common';
 export class WindowManager {
 	private mainWindow: BrowserWindow | null = null;
 	private eventHandlers: Map<string, () => void> = new Map([
@@ -9,9 +10,10 @@ export class WindowManager {
 		['unmaximize', this.sendUnmaximize],
 	]);
 	public createWindow(): BrowserWindow {
+		const { width, height } = screen.getPrimaryDisplay().workAreaSize;
 		this.mainWindow = new BrowserWindow({
-			width: 900,
-			height: 600,
+			width: width * 0.5,
+			height: height * 0.65,
 			show: false,
 			autoHideMenuBar: true,
 			icon: join(__dirname, '../../resources/icon.png'),
@@ -40,6 +42,7 @@ export class WindowManager {
 		} else {
 			this.mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
 		}
+		common.getLocalConfig();
 		return this.mainWindow;
 	}
 

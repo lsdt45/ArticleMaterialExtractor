@@ -1,10 +1,12 @@
 <template>
 	<div class="article-title__wrapper">
-		<div class="title-top">{{ data.title }}</div>
+		<div class="title-top">
+			<n-ellipsis style="max-width: 370px"> {{ data.title }}</n-ellipsis>
+		</div>
 		<div class="title-bottom">
 			<div class="article-title-item" v-for="item in articleInfo">
 				<span>{{ item.label }}:</span>
-				<span>{{ formatCount(data.itemCell.itemCounter[item.key]) }}</span>
+				<span>{{ formatCount(data?.itemCell?.itemCounter[item.key]) }}</span>
 			</div>
 		</div>
 	</div>

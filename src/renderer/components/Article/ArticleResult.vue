@@ -40,7 +40,7 @@
 
 <script setup lang="ts">
 	import { type ArticleData, LoadType, tableColumns, showModal, loadType, searchInfo, showLoading } from './ArticleSearch';
-	import { ArticleEvent } from '../../../preload/ArticleCrawler/ArticleEvent';
+	import { ArticleEvent } from 'src/common/ArticleEvent';
 	import type { DropdownOption } from 'naive-ui';
 	const dropDownOptions: DropdownOption[] = [
 		{
@@ -191,3 +191,4 @@
 		}
 	}
 </style>
+../../../common/ArticleEvent

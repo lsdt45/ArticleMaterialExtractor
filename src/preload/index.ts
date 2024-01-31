@@ -1,10 +1,11 @@
 import { SearchInfo } from './../renderer/components/Article/ArticleSearch';
 import { contextBridge, ipcRenderer } from 'electron';
 import { electronAPI } from '@electron-toolkit/preload';
+import { StoreKey } from '../main/localStore/types';
 import followList from './FollowList/FollowList';
 const common = {
-	updateStore: (store) => {
-		return ipcRenderer.invoke('updateStore', store);
+	updateStore: (key: StoreKey, store) => {
+		return ipcRenderer.invoke('updateStore', key, store);
 	},
 	getLocalConfig: () => {
 		return ipcRenderer.invoke('getLocalConfig');

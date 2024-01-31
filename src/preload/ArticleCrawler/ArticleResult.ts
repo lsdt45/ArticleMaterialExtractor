@@ -1,19 +1,22 @@
 import type { SearchInfo } from '@renderer/components/Article/ArticleSearch';
-import { ArticleEvent } from './ArticleEvent';
+import { ArticleEvent } from '../../common/ArticleEvent';
+import handlerCommon from '../../main/ipcHandlers/handlers/Common';
 import puppeteer from 'puppeteer';
-import type { Page } from 'puppeteer';
+import type { Page, Protocol } from 'puppeteer';
 import _ from 'lodash';
 import { shell } from 'electron';
+import { StoreKey } from '../../main/localStore/types.d';
 
 export async function getArticleSearchList(event: Electron.IpcMainInvokeEvent, searchInfo: string) {
 	const browser = await puppeteer.launch({
-		headless: true, //无头模式，默认是隐藏界面的，改成false,显示界面。
+		headless: false, //无头模式，默认是隐藏界面的，改成false,显示界面。
 		slowMo: 100, //设置浏览器每一步之间的时间间隔，单位毫秒
 		defaultViewport: { width: 0, height: 0 }, // 设置浏览器视窗
 	});
 	let searchInfoObj: SearchInfo = JSON.parse(searchInfo);
 	const page = await browser.newPage(); // 打开一个新页面
-	const articleInfo = await getArticleList(event, page, searchInfoObj);
+	const isLogin = await checkLogin(page);
+	const articleInfo = await getArticleList(event, page, searchInfoObj, isLogin);
 	// await browser.close();
 	return articleInfo;
 }
@@ -31,8 +34,9 @@ export function openUrl(event: Electron.IpcMainInvokeEvent, url: string) {
  * @description: 循环获取文章列表
  * @param {Page} page puppeteer page
  * @param {SearchInfo} searchInfo 搜索信息
+ * @param {boolean} isLogin 是否登录
  */
-async function getArticleList(event: Electron.IpcMainInvokeEvent, page: Page, searchInfo: SearchInfo) {
+async function getArticleList(event: Electron.IpcMainInvokeEvent, page: Page, searchInfo: SearchInfo, isLogin) {
 	let articleInfo: any = [];
 	const timeStamps = getTimeStamps(7);
 	// 设置用户代理
@@ -42,15 +46,17 @@ async function getArticleList(event: Electron.IpcMainInvokeEvent, page: Page, se
 		// let url = `https://so.toutiao.com/search?dvpf=pc&source=search_subtab_switch&keyword=${searchInfo.keyword}&pd=information&action_type=pagination&from=news&cur_tab_title=search_tab&filter_vendor=site&index_resource=site&filter_period=week&min_time=${timeStamps.daysAgoTimestamp}&max_time=${timeStamps.currentTimestamp}&page_num=${i}&search_id=20231220212326511E0B44ED30E84651F6`;
 		let url = `https://so.toutiao.com/search?dvpf=pc&source=input&keyword=${searchInfo.keyword}&pd=information&action_type=pagination&from=news&cur_tab_title=news&page_num=${i}`;
 		await page.setUserAgent(userAgent);
+		await page.setCookie({ ...global.store.cookie });
+		isLogin || (await page.waitForNavigation());
 		let pages: any[] = [];
-    let loopCount = 0;
+		let loopCount = 0;
 		while (pages.length <= 1 && loopCount < 10) {
-      loopCount++;
+			loopCount++;
 			await page.goto(url); // 跳转到指定网页
 			await page.waitForSelector('.cs-card-content'); // 等待元素加载完成
 			pages = await page.$$('.cs-card-content');
 		}
-    console.log('pages.length', pages.length);
+		console.log('pages.length', pages.length);
 		articleInfo = _.concat(articleInfo, await getArticleInfo(page));
 		// 每获取完一页，就发送一次进度
 		event.sender.send(ArticleEvent.ArticleSearchListProgress, i);
@@ -59,12 +65,55 @@ async function getArticleList(event: Electron.IpcMainInvokeEvent, page: Page, se
 }
 
 /**
+ * 检查本地是否存储了cookie，如果没有则跳转到登录页面进行登录
+ * @param {Page} page puppeteer page
+ * @return {boolean} 是否登录
+ */
+async function checkLogin(page: Page): Promise<boolean> {
+	// 如果全局存储中没有 cookie，那么需要登录。
+	if (!global.store.cookie) {
+		// 导航到登录页面。
+		await page.goto('https://www.toutiao.com');
+		// 返回一个新的 Promise，这个 Promise 会在登录成功后被解析。
+		return new Promise((resolve) => {
+			// 监听页面的响应事件。
+			page.on('response', async (response) => {
+				// 筛选出登录相关的响应
+				if (response.url().includes('tt-anti-token')) {
+					const resp = await response.json();
+					// 如果响应的 message 是 'Success'，那么登录成功。
+					if (resp.message === 'Success') {
+						// 获取cookie并存储到全局存储中。
+						await getCookie(await page.cookies());
+						resolve(true);
+					}
+				}
+			});
+		});
+	}
+	// 如果全局存储中已经有 cookie，直接返回 true。
+	return true;
+}
+
+/**
+ * 获取对应的cookie
+ * @param {Protocol.Network.Cookie[]} cookies 该页面的所有cookie
+ */
+async function getCookie(cookies: Protocol.Network.Cookie[]) {
+	cookies.forEach((cookie) => {
+		if (cookie.name === 'tt_anti_token') {
+			handlerCommon.updateStore('', StoreKey.cookie, JSON.stringify(cookie));
+		}
+	});
+}
+
+/**
  * @description: 获取文章基础信息
  * @param {any} obj 存放文章基础信息的对象
  * @param {Element} element 文章基础信息所在的元素
  * @return {any} 文章基础信息
  */
-async function getArticleBaseInfo(obj: any, element: Element) {
+async function getArticleBaseInfo(obj: any, element: Element): Promise<any> {
 	const urlPrefix = 'https://so.toutiao.com';
 	// 可能的时间关键词
 	const timeKeywords = ['小时前', '分钟前', '秒前', '天前', '月前', '年前', '昨天', '前天'];
@@ -109,7 +158,7 @@ async function getArticleBaseInfo(obj: any, element: Element) {
  * @param {Page} page puppeteer page
  * @return {Promise<any>} 文章基础信息
  */
-async function getArticleInfo(page: Page) {
+async function getArticleInfo(page: Page): Promise<any> {
 	// 将 getArticleBaseInfo 函数转换为字符串，以便在浏览器环境中使用
 	let getArticleBaseInfoStr = getArticleBaseInfo.toString();
 	// 使用 Puppeteer 的 $$eval 方法在浏览器环境中执行 JavaScript 代码

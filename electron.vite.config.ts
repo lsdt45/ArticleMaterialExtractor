@@ -4,18 +4,25 @@ import vue from '@vitejs/plugin-vue';
 import AutoImport from 'unplugin-auto-import/vite';
 import Components from 'unplugin-vue-components/vite';
 import { NaiveUiResolver } from 'unplugin-vue-components/resolvers';
+console.log('----preload----', resolve('src/preload/'));
 export default defineConfig({
 	main: {
 		plugins: [externalizeDepsPlugin()],
 	},
 	preload: {
 		plugins: [externalizeDepsPlugin()],
+		resolve: {
+			alias: {
+				'@preload': resolve('src/preload/'),
+				src: resolve('src/'),
+			},
+		},
 	},
 	renderer: {
 		resolve: {
 			alias: {
 				'@renderer': resolve('src/renderer/'),
-        'src': resolve('src/')
+				src: resolve('src/'),
 			},
 		},
 		plugins: [

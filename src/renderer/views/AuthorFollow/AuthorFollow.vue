@@ -25,8 +25,9 @@
 	import ArticleContentDialog from '@renderer/components/AuthorFollow/ArticleContentDialog.vue';
 	import { RendererFollowListItem, MainFollowListItem } from 'src/types/FollowList';
 	import { useStore } from '@renderer/store/index';
-	import { NButton, NTag } from 'naive-ui';
+	import { NButton, NMessageProvider, NTag } from 'naive-ui';
 	import { SettingsEnum } from 'src/common/CommonVars';
+	import { children } from 'cheerio/lib/api/traversing';
 	const followList = ref<MainFollowListItem[]>([]);
 	const dialog = useDialog();
 	const store = useStore();
@@ -113,13 +114,16 @@
 	function openArticleContentDialog(articleData: RendererFollowListItem) {
 		dialog.create({
 			title: `${articleData.platform}-${articleData.author}`,
-			style: { width: '800px' },
+			style: { width: '80vw' },
 			class: 'article-content-dialog',
 			onPositiveClick: confirm,
 			content: () =>
-				h(ArticleContentDialog, {
-					userId: articleData.user_id,
-				}),
+				h(
+					NMessageProvider,
+					h(ArticleContentDialog, {
+						userId: articleData.user_id,
+					})
+				),
 		});
 	}
 	/**
@@ -150,9 +154,9 @@
 		openAddFollowDialog();
 	}
 
-  onMounted(() => {
-    getFollowList(store.settings?.homePageUrl ?? '');
-  })
+	onMounted(() => {
+		getFollowList(store.settings?.homePageUrl ?? '');
+	});
 </script>
 
 <style lang="scss">

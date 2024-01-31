@@ -3,7 +3,7 @@
  * @param {String} timeStr 时间字符串
  * @return {Number} 时间戳
  */
-export function convertToTimestamp(timeStr: string): number | null {
+export function convertToTimestamp(timeStr: string): number {
 	const now = new Date(); // 当前时间
 	const timeUnits = {
 		小时前: 3600 * 1000,
@@ -36,5 +36,5 @@ export function convertToTimestamp(timeStr: string): number | null {
 		return new Date(now.getFullYear(), parseInt(match[1]) - 1, parseInt(match[2])).getTime();
 	}
 
-	return null; // 不匹配任何已知格式
+	return 0; // 不匹配任何已知格式
 }

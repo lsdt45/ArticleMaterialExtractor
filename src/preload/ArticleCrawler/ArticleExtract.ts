@@ -1,7 +1,7 @@
 import puppeteer from 'puppeteer';
 import type { Page } from 'puppeteer';
 import fs from 'fs';
-import { ArticleEvent } from './ArticleEvent';
+import { ArticleEvent } from '../../common/ArticleEvent';
 import axios from 'axios';
 
 /**
@@ -90,6 +90,6 @@ async function getArticleImageContent(page: Page, title: string) {
  */
 export function getSavePath(title: string, format: string, index = 0): string {
 	return index
-		? `${global.store.savePath ?? './'}/${title.replace(/[<>:"/\\|?*]+/g, '')}-${index}.${format}`
-		: `${global.store.savePath ?? './'}/${title.replace(/[<>:"/\\|?*]+/g, '')}.${format}`;
+		? `${global.store.setting.savePath ?? './'}/${title.replace(/[<>:"/\\|?*]+/g, '')}-${index}.${format}`
+		: `${global.store.setting.savePath ?? './'}/${title.replace(/[<>:"/\\|?*]+/g, '')}.${format}`;
 }

@@ -18,9 +18,9 @@ export interface RendererFollowListItem {
 export interface FollowArticleListItem {
 	title: string; // 文章标题
 	article_url: string; // 文章链接
-	type: string; // 文章类型
+	type?: string; // 文章类型
 	publish_time: string; // 发布时间
-  itemCell: {
+  itemCell?: {
     itemCounter: ArticleInfo;
   }
 }

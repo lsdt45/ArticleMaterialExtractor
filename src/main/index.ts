@@ -1,47 +1,10 @@
-import { app, shell, BrowserWindow, ipcMain, dialog } from 'electron';
-import { join } from 'path';
-import { electronApp, optimizer, is } from '@electron-toolkit/utils';
+import { app, BrowserWindow, ipcMain, dialog } from 'electron';
+import { electronApp, optimizer } from '@electron-toolkit/utils';
 import { WindowManager } from './WindowManager';
 // import icon from '../../resources/icon.png?asset';
 // import icon from './resources/icon.ico';
 import { ipcHandlers } from './ipcHandlers/index';
-function createWindow(): BrowserWindow {
-	// Create the browser window.
-	const mainWindow = new BrowserWindow({
-		width: 900,
-		height: 700,
-		show: false,
-		autoHideMenuBar: true,
-		icon: join(__dirname, '../../resources/icon.png'),
-		// ...(process.platform === 'linux' ? { icon } : {}),
-		webPreferences: {
-			preload: join(__dirname, '../preload/index.js'),
-			sandbox: false,
-			// 禁用同源策略，允许跨域请求
-			webSecurity: false,
-			devTools: is.dev ? true : false,
-		},
-		frame: false, // 无边框窗口
-	});
 
-	mainWindow.on('ready-to-show', () => {
-		mainWindow.show();
-	});
-
-	mainWindow.webContents.setWindowOpenHandler((details) => {
-		shell.openExternal(details.url);
-		return { action: 'deny' };
-	});
-
-	// HMR for renderer base on electron-vite cli.
-	// Load the remote URL for development or the local html file for production.
-	if (is.dev && process.env['ELECTRON_RENDERER_URL']) {
-		mainWindow.loadURL(process.env['ELECTRON_RENDERER_URL']);
-	} else {
-		mainWindow.loadFile(join(__dirname, '../renderer/index.html'));
-	}
-	return mainWindow;
-}
 
 // 程序单例模式
 let myWindow: any = null;
